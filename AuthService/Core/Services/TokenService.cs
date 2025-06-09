@@ -27,6 +27,8 @@ namespace AuthService.Core.Services
                     new Claim("Id", pars.Id),
                     new Claim(JwtRegisteredClaimNames.Sub, pars.UserName),
                     new Claim(JwtRegisteredClaimNames.Email, pars.UserName),
+                    new Claim("FirstName", pars.FirstName),
+                    new Claim("LastName", pars.LastName),
 
                 }),
                 Expires = DateTime.UtcNow.AddHours(6),

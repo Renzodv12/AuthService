@@ -5,6 +5,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FluentValidation;
+using AuthService.Core.Entities;
+using Microsoft.AspNetCore.Identity;
+using AuthService.Core.Models.User;
+using AuthService.Core.Validators.User;
+using System.Reflection;
 
 namespace AuthService.Core
 {
@@ -63,6 +69,8 @@ namespace AuthService.Core
             services.AddAuthorization();
 
             services.AddScoped(typeof(IToken), typeof(TokenService));
+            services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
 
             return services;
