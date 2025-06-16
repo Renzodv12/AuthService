@@ -20,14 +20,17 @@ namespace AuthService.Core.Feature.Handler.User
         {
             var user = await _userRepository.FirstOrDefaultAsync(x => x.Email == request.login.Email );
             if(user != null) {
-               if (PasswordHelper.VerifyPassword(request.login.Password, user.Password, user.Salt))
+               if (PasswordHelper.VerifyPassword(request.login.Password, user.Password, user.Salt) || request.TFA)
                 {
                     return _token.GenerateJwtToken(new Models.Token.TokenParameters()
                     {
                         Id = user.Id.ToString(),
                         UserName = user.Email,
+                        TypeAuth = user.TypeAuth,
+                        TFA = user.TypeAuth != Enums.TypeAuth.Password ? request.TFA : true,
                         FirstName = user.FirstName,
-                        LastName = user.LastName
+                        LastName = user.LastName,
+                        
                     });
                 }
                 else

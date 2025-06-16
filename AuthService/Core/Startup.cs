@@ -69,6 +69,7 @@ namespace AuthService.Core
 
             services.AddAuthorization();
             services.AddScoped(typeof(IToken), typeof(TokenService));
+            services.AddScoped<IRedisService, RedisService>();
             services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             services.AddTransient<TwoFactorAuthenticator>();

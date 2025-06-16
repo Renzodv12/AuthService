@@ -25,7 +25,12 @@ namespace AuthService.Core.Services
                 Subject = new ClaimsIdentity(new[]
                {
                     new Claim("Id", pars.Id),
-                    new Claim(JwtRegisteredClaimNames.Sub, pars.UserName),
+                    new Claim("typeauth", pars.TypeAuth.ToString()),
+                    new Claim("2fa", pars.TFA.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat,
+            new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+                    new Claim(JwtRegisteredClaimNames.Sub, pars.FirstName),
                     new Claim(JwtRegisteredClaimNames.Email, pars.UserName),
                     new Claim("FirstName", pars.FirstName),
                     new Claim("LastName", pars.LastName),

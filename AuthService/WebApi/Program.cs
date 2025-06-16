@@ -1,6 +1,7 @@
 using AuthService.Core;
 using AuthService.Infrastructure;
 using AuthService.WebApi.Endpoints;
+using AuthService.WebApi.Middleware;
 using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<JwtRevocationMiddleware>();
+
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

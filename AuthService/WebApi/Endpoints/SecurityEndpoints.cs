@@ -1,8 +1,10 @@
 ﻿using AuthService.Core.Entities;
 using AuthService.Core.Enums;
 using AuthService.Core.Feature.Commands.Security;
+using AuthService.Core.Feature.Commands.User;
 using AuthService.Core.Models.Security;
 using AuthService.Core.Models.User;
+using AuthService.WebApi.Extensions;
 using Google.Authenticator;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -58,14 +60,24 @@ namespace AuthService.WebApi.Endpoints
 
         }
 
-        private static async Task<IResult> TFAConfirm(AuthenticateTwoFactorCommand request, TypeAuth typeAuth, IMediator _mediator)
+        private static async Task<IResult> TFAConfirm(AuthenticateTwoFactorCommand request, IMediator _mediator, HttpContext context)
         {
             try
             {
                 var result = await _mediator.Send(request);
                 if (result)
                 {
-                    return Results.Accepted();
+                    var model = await _mediator.Send(new LoginCommand()
+                    {
+                        login = new Login()
+                        {
+                            Email = context.ExtractTokenClaims().email ?? "",
+                            Password = "",
+                        },
+                        TFA = true
+
+                    });
+                    return Results.Ok(model);
                 }
                 else
                 {
