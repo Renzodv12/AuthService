@@ -9,6 +9,7 @@ namespace AuthService.Infrastructure.Context
             : base(options) { }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<UserAuthenticationMethods> UserAuthenticationMethods => Set<UserAuthenticationMethods>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

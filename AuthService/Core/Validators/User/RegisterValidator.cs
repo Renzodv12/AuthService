@@ -36,7 +36,7 @@ namespace AuthService.Core.Validators.User
 
             RuleFor(x => x.BirthDate)
                 .NotEmpty()
-                .LessThan(DateTime.UtcNow).WithMessage("BirthDate must be in the past.");
+                .LessThan(DateTime.UtcNow.AddYears(-18)).WithMessage("Debe ser mayor de edad");
         }
     }
 }

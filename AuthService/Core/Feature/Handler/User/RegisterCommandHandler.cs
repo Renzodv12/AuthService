@@ -28,7 +28,7 @@ namespace AuthService.Core.Feature.Handler.User
                     Password = hashedPassword,
                     Salt = salt,
                     CI = request.register.CI,
-                    BirthDate = request.register.BirthDate,
+                    BirthDate =  DateTime.SpecifyKind(request.register.BirthDate, DateTimeKind.Utc),
                     TypeAuth = Enums.TypeAuth.Password,
                     CreateDate = DateTime.UtcNow,
                     LastModifiedDate = DateTime.UtcNow

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using AuthService.Core.Models.User;
 using AuthService.Core.Validators.User;
 using System.Reflection;
+using Google.Authenticator;
 
 namespace AuthService.Core
 {
@@ -67,11 +68,11 @@ namespace AuthService.Core
             });
 
             services.AddAuthorization();
-
             services.AddScoped(typeof(IToken), typeof(TokenService));
             services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-
+            services.AddTransient<TwoFactorAuthenticator>();
+            services.AddHttpContextAccessor();
 
             return services;
         }

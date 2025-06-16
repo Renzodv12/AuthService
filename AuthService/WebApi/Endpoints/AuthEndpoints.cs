@@ -2,9 +2,11 @@
 using AuthService.Core.Feature.Commands.User;
 using AuthService.Core.Interfaces;
 using AuthService.Core.Models.User;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography.X509Certificates;
 
 namespace AuthService.WebApi.Endpoints
@@ -16,6 +18,7 @@ namespace AuthService.WebApi.Endpoints
             app.MapPost("/auth/login", Login)
                .WithName("Login")
                .WithTags("Auth")
+               .WithOpenApi()
                .Accepts<Login>("application/json")
                .Produces<string>(StatusCodes.Status200OK)
                .Produces(StatusCodes.Status401Unauthorized);
@@ -23,6 +26,7 @@ namespace AuthService.WebApi.Endpoints
             app.MapPost("/auth/Register", Register)
                .WithName("Register")
                .WithTags("Auth")
+               .WithOpenApi()
                .Accepts<Register>("application/json")
                .Produces<string>(StatusCodes.Status200OK)
                .Produces(StatusCodes.Status401Unauthorized);
@@ -51,10 +55,20 @@ namespace AuthService.WebApi.Endpoints
             }
         }
 
-        private static async Task<IResult> Register(Register request, IMediator _mediator)
+        private static async Task<IResult> Register(Register request, IValidator<Register> validator, IMediator _mediator)
         {
             try
             {
+                var validationResult = await validator.ValidateAsync(request);
+
+                if (!validationResult.IsValid)
+                {
+                    return Results.BadRequest(validationResult.Errors.Select(e => new
+                    {
+                        Property = e.PropertyName,
+                        Error = e.ErrorMessage
+                    }));
+                }
                 await _mediator.Send(new RegisterCommand()
                 {
                     register = request
@@ -62,14 +76,14 @@ namespace AuthService.WebApi.Endpoints
                 return Results.Created();
 
             }
-            catch (UserOPasswordException)
+            catch (UserOPasswordException ex)
             {
-                return Results.BadRequest();
+                return Results.BadRequest(new { Error= ex.Message});
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Results.BadRequest();
+                return Results.BadRequest(new { Error = ex.Message });
             }
         }
     }
