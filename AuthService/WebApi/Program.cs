@@ -22,7 +22,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<JwtRevocationMiddleware>();
+app.UseMiddleware<JwtMiddleware>();
 
 
 app.UseHttpsRedirection();

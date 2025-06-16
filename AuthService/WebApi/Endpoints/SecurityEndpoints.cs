@@ -2,6 +2,7 @@
 using AuthService.Core.Enums;
 using AuthService.Core.Feature.Commands.Security;
 using AuthService.Core.Feature.Commands.User;
+using AuthService.Core.Feature.Querys.Security;
 using AuthService.Core.Models.Security;
 using AuthService.Core.Models.User;
 using AuthService.WebApi.Extensions;
@@ -21,7 +22,7 @@ namespace AuthService.WebApi.Endpoints
   
         public static IEndpointRouteBuilder MapSecurityEndpoints(this IEndpointRouteBuilder app)
         {
-            app.MapGet("/Security/2FA", TFA)
+            app.MapGet("/security/2FA", TFA)
               .WithName("Security")
               .WithTags("Security")
               .WithOpenApi()
@@ -29,7 +30,7 @@ namespace AuthService.WebApi.Endpoints
               .Produces<TwoFactorCodeSetup>(StatusCodes.Status200OK)
               .Produces(StatusCodes.Status401Unauthorized);
 
-            app.MapPost("/Security/2FA", TFAConfirm)
+            app.MapPost("/security/2FA", TFAConfirm)
                  .WithName("SecurityConfirm")
                  .WithTags("Security")
                  .WithOpenApi()
@@ -37,6 +38,15 @@ namespace AuthService.WebApi.Endpoints
                  .Accepts<AuthenticateTwoFactorCommand>("application/json")
                  .Produces(StatusCodes.Status202Accepted)
                  .Produces(StatusCodes.Status401Unauthorized);
+
+            app.MapGet("/security/GetMethods", GetMethods)
+             .WithName("GetMethods")
+             .WithTags("Security")
+             .WithOpenApi()
+             .RequireAuthorization()
+             .Produces(StatusCodes.Status202Accepted)
+             .Produces(StatusCodes.Status401Unauthorized);
+
             return app;
         }
         private static async Task<IResult> TFA(TypeAuth typeAuth, IMediator _mediator)
@@ -92,6 +102,12 @@ namespace AuthService.WebApi.Endpoints
             }
         }
 
-      
+        private static async Task<IResult> GetMethods(IMediator _mediator)
+        {
+            var result = await _mediator.Send(new MethodsAllowedForUserQuery());
+            return Results.Ok(result);
+
+        }
+       
     }
 }

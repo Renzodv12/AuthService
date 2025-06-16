@@ -6,12 +6,12 @@ using System.Text.Json;
 
 namespace AuthService.WebApi.Middleware
 {
-    public class JwtRevocationMiddleware
+    public class JwtMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly IMediator _mediator;
 
-        public JwtRevocationMiddleware(RequestDelegate next, IMediator mediator)
+        public JwtMiddleware(RequestDelegate next, IMediator mediator)
         {
             _next = next;
             _mediator = mediator;
@@ -48,7 +48,7 @@ namespace AuthService.WebApi.Middleware
 
                     // Lista blanca: solo deja pasar si está en rutas permitidas sin 2FA
                     var path = context.Request.Path.Value?.ToLower();
-                    var allowedWithout2FA = new[] { "/auth", "/Security/2FA" };
+                    var allowedWithout2FA = new[] { "/auth", "/security" };
 
                     if (!has2fa && !allowedWithout2FA.Any(p => path.StartsWith(p)))
                     {
