@@ -44,7 +44,8 @@ namespace AuthService.WebApi.Middleware
                             return;
                         }
                     }
-                    var has2fa = context.User.HasClaim("2fa", "true");
+                    var claimValue = context.User.FindFirst("2fa")?.Value;
+                    bool has2fa = bool.TryParse(claimValue, out var result) && result;
 
                     // Lista blanca: solo deja pasar si está en rutas permitidas sin 2FA
                     var path = context.Request.Path.Value?.ToLower();

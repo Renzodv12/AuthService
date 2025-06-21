@@ -28,7 +28,7 @@ namespace AuthService.Core.Feature.Handler.Security
         {
             try
             {
-                var userId = _httpContext?.HttpContext?.User.FindFirstValue("Id");
+                var userId = _httpContext?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var methods = await _userAuthenticationMethodsRepository.WhereAsync(x => x.IdUser == Guid.Parse(userId));
                 var result = (from m in methods
                              select new MethodsAllowedForUser() {

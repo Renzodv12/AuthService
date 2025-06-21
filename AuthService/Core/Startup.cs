@@ -24,7 +24,7 @@ namespace AuthService.Core
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "BaseApi", Version = "v1" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "AuthService", Version = "v1" });
 
                 // Agrega la autorización en Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
