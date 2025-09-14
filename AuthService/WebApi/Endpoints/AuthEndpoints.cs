@@ -1,4 +1,4 @@
-﻿using AuthService.Core.Entities;
+using AuthService.Core.Entities;
 using AuthService.Core.Exceptions;
 using AuthService.Core.Feature.Commands.Security;
 using AuthService.Core.Feature.Commands.User;
@@ -57,6 +57,30 @@ namespace AuthService.WebApi.Endpoints
              .WithSummary("Revoca el token JWT actual")
              .WithTags("Auth")
              .WithOpenApi();
+
+            app.MapPost("/auth/verify-email", VerifyEmail)
+                .WithName("VerifyEmail")
+                .WithSummary("Verifica el email del usuario")
+                .WithTags("Auth")
+                .WithOpenApi()
+                .Produces<bool>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
+
+            app.MapPost("/auth/request-password-reset", RequestPasswordReset)
+                .WithName("RequestPasswordReset")
+                .WithSummary("Solicita recuperación de contraseña")
+                .WithTags("Auth")
+                .WithOpenApi()
+                .Produces<bool>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
+
+            app.MapPost("/auth/reset-password", ResetPassword)
+                .WithName("ResetPassword")
+                .WithSummary("Restablece la contraseña del usuario")
+                .WithTags("Auth")
+                .WithOpenApi()
+                .Produces<bool>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
 
             return app;
         }
@@ -171,7 +195,83 @@ namespace AuthService.WebApi.Endpoints
                 isActive = !isRevoked,
                 timestamp = DateTime.UtcNow
             });
-
         }
+
+        private static async Task<IResult> VerifyEmail(VerifyEmailRequest request, IMediator mediator)
+        {
+            try
+            {
+                var result = await mediator.Send(new VerifyEmailCommand
+                {
+                    Token = request.Token,
+                    Email = request.Email
+                });
+
+                return result
+                    ? Results.Ok(new { success = true, message = "Email verificado exitosamente" })
+                    : Results.BadRequest(new { success = false, message = "Token inválido o expirado" });
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { success = false, message = "Error al verificar email" });
+            }
+        }
+
+        private static async Task<IResult> RequestPasswordReset(RequestPasswordResetRequest request, IMediator mediator)
+        {
+            try
+            {
+                var result = await mediator.Send(new RequestPasswordResetCommand
+                {
+                    Email = request.Email
+                });
+
+                return Results.Ok(new { success = true, message = "Si el email existe, recibirás instrucciones para restablecer tu contraseña" });
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { success = false, message = "Error al procesar solicitud" });
+            }
+        }
+
+        private static async Task<IResult> ResetPassword(ResetPasswordRequest request, IMediator mediator)
+        {
+            try
+            {
+                var result = await mediator.Send(new ResetPasswordCommand
+                {
+                    Token = request.Token,
+                    Email = request.Email,
+                    NewPassword = request.NewPassword
+                });
+
+                return result
+                    ? Results.Ok(new { success = true, message = "Contraseña restablecida exitosamente" })
+                    : Results.BadRequest(new { success = false, message = "Token inválido o expirado" });
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { success = false, message = "Error al restablecer contraseña" });
+            }
+        }
+    }
+
+    // DTOs para los nuevos endpoints
+    public class VerifyEmailRequest
+    {
+        public string Token { get; set; }
+        public string Email { get; set; }
+    }
+
+    public class RequestPasswordResetRequest
+    {
+        public string Email { get; set; }
+    }
+
+    public class ResetPasswordRequest
+    {
+        public string Token { get; set; }
+        public string Email { get; set; }
+        public string NewPassword { get; set; }
     }
 }

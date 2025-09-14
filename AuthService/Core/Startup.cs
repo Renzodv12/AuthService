@@ -1,4 +1,4 @@
-﻿using AuthService.Core.Interfaces;
+using AuthService.Core.Interfaces;
 using AuthService.Core.Services;
 using AuthService.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +12,9 @@ using AuthService.Core.Models.User;
 using AuthService.Core.Validators.User;
 using System.Reflection;
 using Google.Authenticator;
+using Hangfire;
+using Hangfire.PostgreSql;
+using AuthService.Core.Models.Email;
 
 namespace AuthService.Core
 {
@@ -74,6 +77,20 @@ namespace AuthService.Core
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             services.AddTransient<TwoFactorAuthenticator>();
             services.AddHttpContextAccessor();
+
+            // Email Services
+            services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IEmailBackgroundService, EmailBackgroundService>();
+
+            // Hangfire Configuration
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddHangfireServer();
 
             return services;
         }

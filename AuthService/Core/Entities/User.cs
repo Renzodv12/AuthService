@@ -1,4 +1,4 @@
-﻿using AuthService.Core.Enums;
+using AuthService.Core.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace AuthService.Core.Entities
@@ -14,8 +14,12 @@ namespace AuthService.Core.Entities
         public string CI { get; set; }
         public DateTime BirthDate { get; set; }
         public TypeAuth TypeAuth { get; set; }
+        public bool EmailVerified { get; set; } = false;
         public DateTime CreateDate { get; set; }
         public DateTime LastModifiedDate { get; set; }
-
+        
+        // Navigation properties
+        public ICollection<EmailVerificationToken> EmailVerificationTokens { get; set; } = new List<EmailVerificationToken>();
+        public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
     }
 }
