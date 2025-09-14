@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuthService.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250616010439_InitialCreateV2")]
-    partial class InitialCreateV2
+    [Migration("20250914022600_AddBirthDateToUser")]
+    partial class AddBirthDateToUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

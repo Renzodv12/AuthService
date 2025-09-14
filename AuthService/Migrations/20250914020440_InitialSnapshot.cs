@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,11 +6,18 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AuthService.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateV2 : Migration
+    public partial class InitialSnapshot : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<DateTime>(
+                name: "BirthDate",
+                table: "Users",
+                type: "timestamp with time zone",
+                nullable: false,
+                defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
+
             migrationBuilder.CreateTable(
                 name: "UserAuthenticationMethods",
                 columns: table => new
@@ -38,6 +45,12 @@ namespace AuthService.Migrations
                 name: "IX_UserAuthenticationMethods_IdUser",
                 table: "UserAuthenticationMethods",
                 column: "IdUser");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -45,6 +58,10 @@ namespace AuthService.Migrations
         {
             migrationBuilder.DropTable(
                 name: "UserAuthenticationMethods");
+
+            migrationBuilder.DropColumn(
+                name: "BirthDate",
+                table: "Users");
         }
     }
 }

@@ -27,7 +27,8 @@ namespace AuthService.Core.Feature.Handler.User
                         Id = user.Id.ToString(),
                         UserName = user.Email,
                         TypeAuth = user.TypeAuth,
-                        TFA = user.TypeAuth != Enums.TypeAuth.Password ? request.TFA : true,
+                      //  TFA = user.TypeAuth != Enums.TypeAuth.Password ? request.TFA : true,
+                        TFA =  true,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
                         

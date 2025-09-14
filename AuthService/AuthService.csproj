@@ -7,6 +7,8 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <UserSecretsId>5b3fd16a-7101-4a86-984e-c4841502ff94</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DefaultItemExcludes>$(DefaultItemExcludes);MigrationHelper\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
