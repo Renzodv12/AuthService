@@ -8,18 +8,16 @@ using Serilog;
 
 try
 {
-    var builder = WebApplication.CreateBuilder(args);
-    
-    // Configure Serilog
-    Log.Logger = new LoggerConfiguration()
-        .ReadFrom.Configuration(builder.Configuration)
-        .CreateLogger();
-    
-    Log.Information("Starting AuthService application");
-    
-    // Add Serilog
-    builder.Host.UseSerilog();
+var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
 
+Log.Information("Starting AuthService application");
+
+// Add Serilog
+builder.Host.UseSerilog();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -53,8 +51,7 @@ if (app.Environment.IsDevelopment())
 app.MapAuthEndpoints();
 app.MapSecurityEndpoints();
 
-    Log.Information("AuthService application started successfully");
-    app.Run();
+app.Run();
 }
 catch (Exception ex)
 {

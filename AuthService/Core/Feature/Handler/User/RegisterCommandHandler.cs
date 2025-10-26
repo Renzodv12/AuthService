@@ -45,9 +45,16 @@ namespace AuthService.Core.Feature.Handler.User
                     LastModifiedDate = DateTime.UtcNow
                 };
 
-                await _userRepository.AddAsync(user);
-                await _userRepository.SaveChangesAsync();
+                try
+                {
+                    await _userRepository.AddAsync(user);
+                    await _userRepository.SaveChangesAsync();
+                }
+        
+                catch(Exception ex)
+                {
 
+                }
                 // Crear token de verificación de email
                 var verificationToken = GenerateSecureToken();
                 var emailVerification = new EmailVerificationToken

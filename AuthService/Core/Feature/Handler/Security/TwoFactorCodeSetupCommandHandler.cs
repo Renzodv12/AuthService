@@ -49,7 +49,7 @@ namespace AuthService.Core.Feature.Handler.Security
                 switch (request.typeAuth)
                 {
                     case TypeAuth.GoogleAuthenticator:
-                        byte[] key = new byte[6];
+                        byte[] key = new byte[20];
                         var rng = RandomNumberGenerator.Create();
                         rng.GetBytes(key);
                         string secretKey = Convert.ToBase64String(key);
