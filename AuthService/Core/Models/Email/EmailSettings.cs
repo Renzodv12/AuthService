@@ -13,5 +13,6 @@ namespace AuthService.Core.Models.Email
         public string PasswordResetTemplate { get; set; }
         public string WelcomeEmailTemplate { get; set; }
         public string BaseUrl { get; set; }
+        public string FrontendBaseUrl { get; set; }
     }
 }

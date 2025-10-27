@@ -44,7 +44,8 @@ namespace AuthService.Core.Services
         public async Task SendPasswordResetAsync(string email, string firstName, string resetToken)
         {
             var subject = "Recuperación de Contraseña - AuthService";
-            var resetUrl = $"{_emailSettings.BaseUrl}/reset-password?token={resetToken}";
+            var frontendUrl = _emailSettings.FrontendBaseUrl ?? _emailSettings.BaseUrl;
+            var resetUrl = $"{frontendUrl}/auth/custom/reset-password?token={resetToken}&email={Uri.EscapeDataString(email)}";
             
             var body = $@"
                 <html>
@@ -84,10 +85,44 @@ namespace AuthService.Core.Services
             await SendEmailAsync(email, subject, body);
         }
 
+        public async Task SendTwoFactorCodeAsync(string email, string firstName, string code)
+        {
+            var subject = "Código de verificación - AuthService";
+            
+            var body = $@"
+                <html>
+                <body style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;'>
+                    <div style='background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto;'>
+                        <h2 style='color: #333;'>¡Hola {firstName}!</h2>
+                        <p style='color: #666; font-size: 16px;'>Has solicitado un código de verificación de dos factores para tu cuenta.</p>
+                        <div style='background-color: #f0f0f0; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;'>
+                            <p style='margin: 0; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4CAF50;'>{code}</p>
+                        </div>
+                        <p style='color: #666; font-size: 14px;'>Este código expirará en 10 minutos.</p>
+                        <p style='color: #999; font-size: 12px; margin-top: 20px;'>Si no solicitaste este código, puedes ignorar este email.</p>
+                        <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
+                        <p style='color: #999; font-size: 12px;'>Saludos,<br>El equipo de AuthService</p>
+                    </div>
+                </body>
+                </html>";
+
+            await SendEmailAsync(email, subject, body);
+        }
+
         private async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             try
             {
+                // Variable de entorno para redirección de email en pruebas
+                var testEmail = Environment.GetEnvironmentVariable("TEST_EMAIL");
+                var actualToEmail = !string.IsNullOrEmpty(testEmail) ? testEmail : toEmail;
+                
+                // Si estamos redirigiendo, agregar nota en el cuerpo del email
+                if (!string.IsNullOrEmpty(testEmail) && testEmail != toEmail)
+                {
+                    body += $"<p style='color: red; font-size: 12px;'>[PRUEBA] Este email estaba destinado a: {toEmail}</p>";
+                }
+
                 using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.SmtpPort)
                 {
                     Credentials = new NetworkCredential(_emailSettings.SmtpUsername, _emailSettings.SmtpPassword),
@@ -102,10 +137,10 @@ namespace AuthService.Core.Services
                     IsBodyHtml = true
                 };
 
-                mailMessage.To.Add(toEmail);
+                mailMessage.To.Add(actualToEmail);
 
                 await client.SendMailAsync(mailMessage);
-                _logger.LogInformation("Email enviado exitosamente a {Email}", toEmail);
+                _logger.LogInformation("Email enviado exitosamente a {Email}", actualToEmail);
             }
             catch (Exception ex)
             {

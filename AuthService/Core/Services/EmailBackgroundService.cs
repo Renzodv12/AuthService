@@ -58,5 +58,20 @@ namespace AuthService.Core.Services
                 throw;
             }
         }
+
+        public async Task SendTwoFactorCodeAsync(string email, string firstName, string code)
+        {
+            try
+            {
+                _logger.LogInformation("Enviando código de 2FA a {Email}", email);
+                await _emailService.SendTwoFactorCodeAsync(email, firstName, code);
+                _logger.LogInformation("Código de 2FA enviado exitosamente a {Email}", email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al enviar código de 2FA a {Email}", email);
+                throw;
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AuthService.Core.Enums;
+﻿using AuthService.Core.Entities;
+using AuthService.Core.Enums;
 using AuthService.Core.Exceptions;
 using AuthService.Core.Feature.Commands.Security;
 using AuthService.Core.Interfaces;
@@ -15,17 +16,20 @@ namespace AuthService.Core.Feature.Handler.Security
     {
         private readonly IRepository<AuthService.Core.Entities.User> _userRepository;
         private readonly IRepository<AuthService.Core.Entities.UserAuthenticationMethods> _userAuthenticationMethodsRepository;
+        private readonly IRepository<EmailVerificationCode> _emailCodeRepository;
         private readonly ILogger<AuthenticateTwoFactorCommandHandler> _logger;
         private readonly TwoFactorAuthenticator _twoFactorAuthentication;
         private readonly IHttpContextAccessor _httpContext;
         public AuthenticateTwoFactorCommandHandler(IRepository<AuthService.Core.Entities.User> userRepository,
                                                 IRepository<AuthService.Core.Entities.UserAuthenticationMethods> userAuthenticationMethodsRepository,
+                                                IRepository<EmailVerificationCode> emailCodeRepository,
                                                 ILogger<AuthenticateTwoFactorCommandHandler> logger,
                                                 TwoFactorAuthenticator twoFactorAuthentication,
                                                 IHttpContextAccessor httpContext)
         {
             _userRepository = userRepository;
             _userAuthenticationMethodsRepository = userAuthenticationMethodsRepository;
+            _emailCodeRepository = emailCodeRepository;
             _logger = logger;
             _twoFactorAuthentication = twoFactorAuthentication;
             _httpContext = httpContext;
@@ -54,7 +58,29 @@ namespace AuthService.Core.Feature.Handler.Security
                         break;
 
                     case TypeAuth.EmailVerificationCode:
-                        throw new NotImplementedException();
+                        // Buscar código de verificación por email
+                        var emailCode = await _emailCodeRepository.FirstOrDefaultAsync(
+                            x => x.UserId == customer.Id && x.Code == request.secretKey && !x.IsUsed && x.Email == customer.Email);
+                        
+                        if (emailCode == null)
+                        {
+                            _logger.LogWarning("Código de verificación no válido para usuario {Email}", email);
+                            return false;
+                        }
+                        
+                        if (emailCode.IsExpired)
+                        {
+                            _logger.LogWarning("Código de verificación expirado para usuario {Email}", email);
+                            return false;
+                        }
+                        
+                        // Marcar código como usado
+                        emailCode.IsUsed = true;
+                        emailCode.UsedAt = DateTime.UtcNow;
+                        await _emailCodeRepository.SaveChangesAsync();
+                        
+                        result = true;
+                        _logger.LogInformation("Código de verificación validado exitosamente para usuario {Email}", email);
                         break;
                 }
 

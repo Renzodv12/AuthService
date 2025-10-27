@@ -82,6 +82,14 @@ namespace AuthService.WebApi.Endpoints
                 .Produces<bool>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status400BadRequest);
 
+            app.MapGet("/auth/validate-reset-token", ValidatePasswordResetToken)
+                .WithName("ValidatePasswordResetToken")
+                .WithSummary("Valida el token de restablecimiento de contraseña")
+                .WithTags("Auth")
+                .WithOpenApi()
+                .Produces<PasswordResetTokenValidationResult>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest);
+
             return app;
         }
 
@@ -252,6 +260,23 @@ namespace AuthService.WebApi.Endpoints
             catch (Exception ex)
             {
                 return Results.BadRequest(new { success = false, message = "Error al restablecer contraseña" });
+            }
+        }
+
+        private static async Task<IResult> ValidatePasswordResetToken(string token, IMediator mediator)
+        {
+            try
+            {
+                var result = await mediator.Send(new ValidatePasswordResetTokenCommand
+                {
+                    Token = token
+                });
+
+                return Results.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new PasswordResetTokenValidationResult(false, null, "Error al validar token"));
             }
         }
     }

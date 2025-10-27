@@ -1,0 +1,43 @@
+======================================================
+CODIGO SQL PARA EJECUTAR MANUALMENTE
+======================================================
+Copia y pega este código en tu cliente PostgreSQL
+======================================================
+
+-- Habilitar extensión UUID (si no está habilitada)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Crear tabla EmailVerificationCodes
+CREATE TABLE IF NOT EXISTS "EmailVerificationCodes" (
+    "Id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "UserId" uuid NOT NULL,
+    "Code" character varying(10) NOT NULL,
+    "Email" character varying(100) NOT NULL,
+    "ExpiresAt" timestamp with time zone NOT NULL,
+    "IsUsed" boolean NOT NULL DEFAULT false,
+    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "UsedAt" timestamp with time zone NULL,
+    CONSTRAINT "PK_EmailVerificationCodes" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_EmailVerificationCodes_Users_UserId" FOREIGN KEY ("UserId") 
+        REFERENCES "Users" ("Id") ON DELETE CASCADE
+);
+
+-- Crear índices
+CREATE INDEX IF NOT EXISTS "IX_EmailVerificationCodes_UserId" 
+    ON "EmailVerificationCodes" ("UserId");
+
+CREATE INDEX IF NOT EXISTS "IX_EmailVerificationCodes_Code" 
+    ON "EmailVerificationCodes" ("Code");
+
+CREATE INDEX IF NOT EXISTS "IX_EmailVerificationCodes_UserId_Code_IsUsed" 
+    ON "EmailVerificationCodes" ("UserId", "Code", "IsUsed");
+
+-- Verificar creación
+SELECT table_name 
+FROM information_schema.tables 
+WHERE table_name = 'EmailVerificationCodes';
+
+======================================================
+FIN DEL CODIGO SQL
+======================================================
+
